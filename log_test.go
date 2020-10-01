@@ -47,11 +47,13 @@ func TestDefaultLogger(t *testing.T) {
 	Infof("%s message", "info")
 	Warnf("%s message", "warn")
 	Errorf("%s message", "error")
+	WithFields(map[string]interface{}{"foo": "bar"}).Infof("hello")
 
-	exp := `[D] 0001-01-01 00:00:00 +0000 UTC debug message
-[I] 0001-01-01 00:00:00 +0000 UTC info message
-[W] 0001-01-01 00:00:00 +0000 UTC warn message
-[E] 0001-01-01 00:00:00 +0000 UTC error message
+	exp := `when="0001-01-01 00:00:00 +0000 UTC" level="debug" message="debug message"
+when="0001-01-01 00:00:00 +0000 UTC" level="info" message="info message"
+when="0001-01-01 00:00:00 +0000 UTC" level="warn" message="warn message"
+when="0001-01-01 00:00:00 +0000 UTC" level="error" message="error message"
+when="0001-01-01 00:00:00 +0000 UTC" level="info" message="hello" foo="bar"
 `
 	if buf.String() != exp {
 		t.Errorf("writer got:\n%s\nwant:\n%s", buf.String(), exp)
@@ -77,11 +79,13 @@ func TestNewMulti(t *testing.T) {
 	m.Infof("%s message", "info")
 	m.Warnf("%s message", "warn")
 	m.Errorf("%s message", "error")
+	m.WithFields(map[string]interface{}{"foo": "bar"}).Infof("hello")
 
-	exp := `[D] 0001-01-01 00:00:00 +0000 UTC debug message
-[I] 0001-01-01 00:00:00 +0000 UTC info message
-[W] 0001-01-01 00:00:00 +0000 UTC warn message
-[E] 0001-01-01 00:00:00 +0000 UTC error message
+	exp := `when="0001-01-01 00:00:00 +0000 UTC" level="debug" message="debug message"
+when="0001-01-01 00:00:00 +0000 UTC" level="info" message="info message"
+when="0001-01-01 00:00:00 +0000 UTC" level="warn" message="warn message"
+when="0001-01-01 00:00:00 +0000 UTC" level="error" message="error message"
+when="0001-01-01 00:00:00 +0000 UTC" level="info" message="hello" foo="bar"
 `
 	if buf1.String() != exp {
 		t.Errorf("buf1 got:\n%s\nwant:\n%s", buf1.String(), exp)
