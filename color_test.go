@@ -9,7 +9,7 @@ import (
 	"bou.ke/monkey"
 )
 
-func TestWriter(t *testing.T) {
+func TestColor(t *testing.T) {
 	// Patch time.Now to return a static time.
 	monkey.Patch(time.Now, func() time.Time {
 		return time.Time{}
@@ -17,7 +17,7 @@ func TestWriter(t *testing.T) {
 	defer monkey.UnpatchAll()
 
 	buf := new(bytes.Buffer)
-	w := NewWriter(buf)
+	w := NewColor(buf)
 	w.Debugf("%s message", "debug")
 	w.Infof("%s message", "info")
 	w.Warnf("%s message", "warn")
@@ -35,16 +35,16 @@ when="0001-01-01 00:00:00 +0000 UTC" level="info" message="hello" foo="bar"
 	}
 }
 
-func TestWriter_WithFields(t *testing.T) {
+func TestColor_WithFields(t *testing.T) {
 	// We just need to test overwriting.
-	w := NewWriter(nil)
+	w := NewColor(nil)
 	l := w.WithFields(map[string]interface{}{"foo": "bar", "too": "boo"}).
 		WithFields(map[string]interface{}{"foo": "baz", "bar": "foo"})
 
 	exp := map[string]interface{}{"foo": "baz", "too": "boo", "bar": "foo"}
 
-	if !reflect.DeepEqual(l.(*Writer).f, exp) {
-		t.Errorf("with fields:\n%v\nwant:\n%v", l.(*Writer).f, exp)
+	if !reflect.DeepEqual(l.(*Color).f, exp) {
+		t.Errorf("with fields:\n%v\nwant:\n%v", l.(*Color).f, exp)
 	}
 
 }

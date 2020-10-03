@@ -1,8 +1,12 @@
 // Package log provides a simplified interface for interacting with
-// logging systems.
+// logging systems. The default logger sends messages to os.Stdout
+// unless changed.
 package log
 
-import "os"
+import (
+	"os"
+	"time"
+)
 
 // Logger is an interface this package uses to log to loggers that
 // fulfull this interface.
@@ -18,6 +22,17 @@ type Logger interface {
 
 	// Errorf logs information related to an error.
 	Errorf(format string, args ...interface{})
+
+	// WithFields creates a new logger that is identical to this
+	// logger but with the given fields added to the field set.
+	WithFields(map[string]interface{}) Logger
+}
+
+type Entry struct {
+	When    time.Time              `json:"when"`
+	Level   string                 `json:"level"`
+	Message string                 `json:"message"`
+	Fields  map[string]interface{} `json:"fields,omitempty"`
 }
 
 var logger Logger = NewWriter(os.Stdout)
@@ -45,6 +60,11 @@ func Warnf(format string, args ...interface{}) {
 // Errorf logs an Errorf message to the default logger.
 func Errorf(format string, args ...interface{}) {
 	logger.Errorf(format, args...)
+}
+
+// WithFields calls WithFields for the default logger.
+func WithFields(f map[string]interface{}) Logger {
+	return logger.WithFields(f)
 }
 
 // Multi creates a log which logs to all the given loggers.
@@ -84,4 +104,13 @@ func (m *Multi) Errorf(format string, args ...interface{}) {
 	for _, l := range m.ll {
 		l.Errorf(format, args...)
 	}
+}
+
+// WithFields calls WithFields for the default logger.
+func (m *Multi) WithFields(f map[string]interface{}) Logger {
+	ll := []Logger{}
+	for _, l := range m.ll {
+		ll = append(ll, l.WithFields(f))
+	}
+	return &Multi{ll: ll}
 }
